@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://brah0i1j2k3l4"]
+
+[ext_resource type="Script" uid="uid://bcsmy8sp372nl" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"coward_genius_fast"
+display_name = "Coward Genius (Fast)"
+description = "Genius civilian. HP 1, ATK 2. Fast movement (2x). Flees and targets weapons."
+max_hp = 1
+attack = 2
+speed = 220.0
+speedwalk = 100.0
+knockback_force = 15.0
+ability_id = 3
+tags = Array[StringName]([&"genius"])
+faction = 1
+tint = Color(0.5, 0.8, 0.9, 1)
+weapon_anchor_offset = Vector2(0, 0)

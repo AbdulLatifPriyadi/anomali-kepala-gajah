@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WaveOptionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_option_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"w3_hard_2"
+label = "Hard Wave"
+description = "8 Tiny Humans — overwhelming swarm."
+tint_color = Color(0.8, 0.3, 0.3, 1)
+swatch_texture = null
+title_scale = 1.0
+desc_scale = 1.0
+enemy_paths = ["res://data/units/tiny_human.tres", "res://data/units/tiny_human.tres", "res://data/units/tiny_human.tres", "res://data/units/tiny_human.tres", "res://data/units/tiny_human.tres", "res://data/units/tiny_human.tres", "res://data/units/tiny_human.tres", "res://data/units/tiny_human.tres"]

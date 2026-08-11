@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3 uid="uid://cswrd5p7x2fnh"]
+
+[ext_resource type="Script" path="res://scripts/weapon_data.gd" id="1_wpn"]
+
+[resource]
+script = ExtResource("1_wpn")
+id = &"sword"
+display_name = "Sword"
+description = "Attack +4, knockback +3. The classic big swing."
+attack_bonus = 4
+hp_bonus = 0
+knockback_override = 8.0
+speed_override = 0.0
+ability_override = -1
+flags = Array[StringName]([&"advantage"])
+tint = Color(0.7, 0.8, 0.95, 1)

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WaveOptionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_option_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"w1_easy_1"
+label = "Easy Wave"
+description = "2 Coward Human — low threat, easy to handle."
+tint_color = Color(0.3, 0.7, 0.3, 1)
+swatch_texture = null
+title_scale = 1.0
+desc_scale = 1.0
+enemy_paths = ["res://data/units/coward_human.tres", "res://data/units/coward_human.tres"]

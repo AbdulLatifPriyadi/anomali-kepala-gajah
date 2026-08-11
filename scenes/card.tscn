@@ -1,0 +1,144 @@
+[gd_scene format=3 uid="uid://snnvg284kdwm"]
+
+[ext_resource type="Script" uid="uid://cfadvlqnesk4v" path="res://scripts/card.gd" id="1_card"]
+
+[node name="RecruitCard" type="Control" unique_id=1231381000]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -130.0
+offset_right = 200.0
+offset_bottom = 130.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_card")
+
+[node name="CardBg" type="ColorRect" parent="." unique_id=245962728]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.08, 0.28, 0.97)
+
+[node name="CardTitle" type="Label" parent="." unique_id=394404315]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 10.0
+offset_bottom = -204.0
+grow_horizontal = 2
+text = "Recruit"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OptionsContainer" type="HBoxContainer" parent="." unique_id=394404316]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 56.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="OptionA" type="Button" parent="OptionsContainer" unique_id=394404317]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = ""
+
+[node name="OptionABg" type="ColorRect" parent="OptionsContainer/OptionA" unique_id=394404318]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.18, 0.18, 0.38, 0.95)
+
+[node name="Swatch" type="ColorRect" parent="OptionsContainer/OptionA" unique_id=394404319]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 36.0
+grow_horizontal = 2
+color = Color(0.4, 0.7, 1.0, 1.0)
+
+[node name="VBox" type="VBoxContainer" parent="OptionsContainer/OptionA" unique_id=394404320]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="OptionsContainer/OptionA/VBox" unique_id=394404321]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Runner"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="OptionsContainer/OptionA/VBox" unique_id=394404322]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 14
+text = "Fast but fragile"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OptionB" type="Button" parent="OptionsContainer" unique_id=394404323]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = ""
+
+[node name="OptionBBg" type="ColorRect" parent="OptionsContainer/OptionB" unique_id=394404324]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.18, 0.18, 0.38, 0.95)
+
+[node name="Swatch" type="ColorRect" parent="OptionsContainer/OptionB" unique_id=394404325]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 36.0
+grow_horizontal = 2
+color = Color(1.0, 0.35, 0.35, 1.0)
+
+[node name="VBox" type="VBoxContainer" parent="OptionsContainer/OptionB" unique_id=394404326]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="OptionsContainer/OptionB/VBox" unique_id=394404327]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Brute"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="OptionsContainer/OptionB/VBox" unique_id=394404328]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 14
+text = "Slow but tanky"
+horizontal_alignment = 1
+vertical_alignment = 1

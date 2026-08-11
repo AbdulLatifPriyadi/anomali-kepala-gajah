@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3 uid="uid://brkqnm7yad2vw"]
+
+[ext_resource type="Script" uid="uid://80vcnl6njywi" path="res://scripts/weapon_data.gd" id="1_wpn"]
+
+[resource]
+script = ExtResource("1_wpn")
+id = &"knife"
+display_name = "Knife"
+description = "Attack +1"
+attack_bonus = 1
+knockback_override = 7.0
+flags = Array[StringName]([&"advantage"])
+tint = Color(0.8, 0.8, 0.85, 1)
+sprite_path = "res://assets/knife.png"
+sprite_scale = 0.3

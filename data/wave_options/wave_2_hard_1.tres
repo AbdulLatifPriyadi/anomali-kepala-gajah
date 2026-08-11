@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WaveOptionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_option_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"w2_hard_1"
+label = "Hard Wave"
+description = "1 Knife Human + 1 Genius — equipped and smart."
+tint_color = Color(0.8, 0.3, 0.3, 1)
+swatch_texture = null
+title_scale = 1.0
+desc_scale = 1.0
+enemy_paths = ["res://data/units/human_with_knife_drop.tres", "res://data/units/coward_genius_human.tres"]

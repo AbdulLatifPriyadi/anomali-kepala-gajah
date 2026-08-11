@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://bq6e7f8hah0i1"]
+
+[ext_resource type="Script" uid="uid://bcsmy8sp372nl" path="res://scripts/unit_data.gd" id="1_ud"]
+[ext_resource type="Resource" uid="uid://bq1x2y3z4w5v6" path="res://data/weapons/knife_drop.tres" id="2_knife_drop"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"human_with_knife_drop"
+display_name = "Human w/ Knife"
+description = "Civilian. HP 1-2, ATK 3-4. Knife will DROP on death."
+max_hp = 1
+attack = 3
+speed = 120.0
+speedwalk = 56.0
+knockback_force = 28.0
+attack_cooldown = 0.6
+ability_id = 0
+starting_weapon = ExtResource("2_knife_drop")
+faction = 1
+tint = Color(0.7, 0.55, 0.45, 1)
+weapon_anchor_offset = Vector2(-300, -1000)

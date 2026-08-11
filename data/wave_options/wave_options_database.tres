@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WaveOptionsDatabase" format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_options_database.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+popup_scale = 1.0
+panel_title_scale = 1.0
+entries = {
+1: {
+"easy": {
+"title": "Easy Wave",
+"description": "2 Coward Humans OR 1 Brave + 1 Coward.",
+"tint_color": Color(0.4, 0.8, 0.4, 1.0),
+"swatch_texture": null,
+"title_scale": 1.0,
+"desc_scale": 1.0
+},
+"hard": {
+"title": "Hard Wave",
+"description": "1 Human w/ Knife OR 2 Brave Humans.",
+"tint_color": Color(0.8, 0.4, 0.4, 1.0),
+"swatch_texture": null,
+"title_scale": 1.0,
+"desc_scale": 1.0
+}
+},
+2: {
+"easy": {
+"title": "Easy Wave",
+"description": "2 Brave Humans OR 4 Tiny Humans.",
+"tint_color": Color(0.4, 0.8, 0.4, 1.0),
+"swatch_texture": null,
+"title_scale": 1.0,
+"desc_scale": 1.0
+},
+"hard": {
+"title": "Hard Wave",
+"description": "1 Knife Human + 1 Genius OR 3 Brave Humans.",
+"tint_color": Color(0.8, 0.4, 0.4, 1.0),
+"swatch_texture": null,
+"title_scale": 1.0,
+"desc_scale": 1.0
+}
+},
+3: {
+"easy": {
+"title": "Easy Wave",
+"description": "2 Humans w/ Knife OR 2 Brave + 1 Knife Human.",
+"tint_color": Color(0.4, 0.8, 0.4, 1.0),
+"swatch_texture": null,
+"title_scale": 1.0,
+"desc_scale": 1.0
+},
+"hard": {
+"title": "Hard Wave",
+"description": "1 Knife Human + 3 Fast Genius OR 8 Tiny Humans.",
+"tint_color": Color(0.8, 0.4, 0.4, 1.0),
+"swatch_texture": null,
+"title_scale": 1.0,
+"desc_scale": 1.0
+}
+}
+}

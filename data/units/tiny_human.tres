@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://bq7f8hah0i1j2"]
+
+[ext_resource type="Script" uid="uid://bcsmy8sp372nl" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"tiny_human"
+display_name = "Tiny Human"
+description = "Tiny civilian. HP 1, ATK 2-3. Fights back but very fragile."
+max_hp = 1
+attack = 2
+speed = 120.0
+speedwalk = 60.0
+knockback_force = 15.0
+attack_cooldown = 0.6
+ability_id = 0
+faction = 1
+tint = Color(0.5, 0.6, 0.7, 1)
+weapon_anchor_offset = Vector2(0, 0)

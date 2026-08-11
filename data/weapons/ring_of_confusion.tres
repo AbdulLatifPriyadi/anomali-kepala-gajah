@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3 uid="uid://drng4z8x2k5mn"]
+
+[ext_resource type="Script" uid="uid://cwzpd5fn8q3hh" path="res://scripts/weapon_data.gd" id="1_wpn"]
+
+[resource]
+script = ExtResource("1_wpn")
+id = &"ring_of_confusion"
+display_name = "Ring of Confusion"
+description = "Wearer moves randomly. Disables targeted pursuit."
+attack_bonus = 0
+hp_bonus = 0
+knockback_override = 0.0
+speed_override = 0.0
+ability_override = -1
+flags = Array[StringName]([&"debuff", &"confusion"])
+tint = Color(0.95, 0.85, 0.4, 1)

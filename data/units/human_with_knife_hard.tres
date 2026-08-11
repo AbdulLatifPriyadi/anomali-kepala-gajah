@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://bq5d6e7f8hah0"]
+
+[ext_resource type="Script" uid="uid://bcsmy8sp372nl" path="res://scripts/unit_data.gd" id="1_ud"]
+[ext_resource type="Resource" uid="uid://brkqnm7yad2vw" path="res://data/weapons/knife.tres" id="2_knife"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"human_with_knife_hard"
+display_name = "Human w/ Knife"
+description = "Civilian. HP 9-10, ATK 2-3. Knife-equipped — hits harder."
+max_hp = 9
+attack = 2
+speed = 120.0
+speedwalk = 56.0
+knockback_force = 28.0
+attack_cooldown = 0.6
+ability_id = 0
+starting_weapon = ExtResource("2_knife")
+faction = 1
+tint = Color(0.7, 0.55, 0.45, 1)
+weapon_anchor_offset = Vector2(-300, -1000)

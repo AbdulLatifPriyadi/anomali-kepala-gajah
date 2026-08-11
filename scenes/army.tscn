@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://bf4ktgarsthge"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_i35s1"]
+radius = 18.0
+
+[node name="Army" type="CharacterBody2D" unique_id=75792736]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1501616306]
+shape = SubResource("CircleShape2D_i35s1")
+
+[node name="Sprite" type="Node2D" parent="." unique_id=22093091]
+
+[node name="Head" type="ColorRect" parent="Sprite" unique_id=1913945684]
+offset_left = -8.0
+offset_top = -32.0
+offset_right = -8.0
+offset_bottom = -32.0
+
+[node name="Body" type="ColorRect" parent="Sprite" unique_id=233410831]
+
+[node name="LeftArm" type="ColorRect" parent="Sprite" unique_id=1829766217]
+
+[node name="RightArm" type="ColorRect" parent="Sprite" unique_id=1971117955]
+
+[node name="LeftLeg" type="ColorRect" parent="Sprite" unique_id=136965887]
+
+[node name="RightLeg" type="ColorRect" parent="Sprite" unique_id=92047264]

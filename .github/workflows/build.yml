@@ -1,0 +1,80 @@
+name: Build & Deploy to itch.io
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  export:
+    name: Godot HTML5 Export
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.7.1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot export templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/4.7.1.stable
+          cp -r /root/.local/share/godot/export_templates/4.7.1.stable ~/.local/share/godot/export_templates/ || true
+
+      - name: Generate desktop.ini
+        run: |
+          mkdir -p .github/workflows
+          cat > "Desktop.ini" << 'EOF'
+          [Desktop Entry]
+          Type=Directory
+          EOF
+
+      - name: Export for HTML5
+        run: |
+          mkdir -p build
+          godot --headless --export-release "HTML5" build/index.html
+
+      - name: Create itch.io game folder
+        run: |
+          mkdir -p build/butler_upload
+          cp build/index.html build/butler_upload/
+          cp build/index.js build/butler_upload/ 2>/dev/null || true
+          cp build/index.wasm build/butler_upload/ 2>/dev/null || true
+          cp build/index.pck build/butler_upload/ 2>/dev/null || true
+          cp build/index.audio.worklet.js build/butler_upload/ 2>/dev/null || true
+          cp build/index.worker.js build/butler_upload/ 2>/dev/null || true
+
+      - name: Fix MIME types
+        run: |
+          cd build/butler_upload
+          for f in *.wasm; do
+            echo -e '\n\n//# sourceMappingURL='"$f"'.map' >> "$f"
+          done
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: html5-build
+          path: build/butler_upload/
+          retention-days: 7
+
+  deploy:
+    name: Deploy to itch.io
+    needs: export
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: html5-build
+          path: butler_upload/
+
+      - name: Push to itch.io
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.ITCHIO_API_KEY }}
+        run: |
+          curl -Lfo butler https://github.com/itchio/butler/releases/latest/download/butler-linux-amd64
+          chmod +x butler
+          ./butler push butler_upload/ ${{ vars.ITCHIO_GAME_ID }} --userversion ${{ github.run_number }}

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3 uid="uid://dcsrd5k8x2zmn"]
+
+[ext_resource type="Script" uid="uid://cwzpd5fn8q3hh" path="res://scripts/weapon_data.gd" id="1_wpn"]
+
+[resource]
+script = ExtResource("1_wpn")
+id = &"cursed_sword"
+display_name = "Cursed Sword"
+description = "Attack +1, HP -5. Powers beyond mortal reckoning."
+attack_bonus = 1
+hp_bonus = -5
+knockback_override = 0.0
+speed_override = 0.0
+ability_override = -1
+flags = Array[StringName]([&"debuff"])
+tint = Color(0.5, 0.2, 0.55, 1)

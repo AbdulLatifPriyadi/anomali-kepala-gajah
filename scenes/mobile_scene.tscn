@@ -1,0 +1,124 @@
+[gd_scene format=3 uid="uid://dbwg0nlcqmeau"]
+
+[ext_resource type="Script" uid="uid://cqs2amr6ndjj0" path="res://scripts/mobile_scene.gd" id="2_mobile"]
+[ext_resource type="Script" uid="uid://d0bqcc7cl0ovs" path="res://scripts/arena.gd" id="3_bixej"]
+[ext_resource type="PackedScene" uid="uid://dpi0x7my0imkr" path="res://scenes/base_unit.tscn" id="4_3pfeg"]
+[ext_resource type="PackedScene" uid="uid://c1mw2yk288l68" path="res://scenes/grave.tscn" id="5_ut5oq"]
+[ext_resource type="Script" uid="uid://75i7cqespekx" path="res://scripts/popup_manager.gd" id="6_rc3n7"]
+[ext_resource type="PackedScene" uid="uid://cqjkho4nk6luy" path="res://scenes/popup_panel.tscn" id="7_igtv3"]
+[ext_resource type="Script" uid="uid://db572atvd2ucm" path="res://scripts/card_editor_layout.gd" id="8_card_editor_layout"]
+[ext_resource type="Resource" path="res://data/wave_options/wave_options_database.tres" id="9_wave_db"]
+
+[node name="MobileScene" type="Control" unique_id=1661153160]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_mobile")
+arena_path = NodePath("Arena")
+popup_manager_path = NodePath("PopupManager")
+prize_pool = ["res://data/units/anomali_tanpa_wajah_t1_strong.tres", "res://data/units/anomali_tanpa_wajah_t1_tank.tres"]
+easy_wave_data = ["res://data/units/human_easy.tres"]
+hard_wave_data = ["res://data/units/human_hard.tres"]
+wave_options_database = ExtResource("9_wave_db")
+wolf_pool = ["res://data/units/wolf.tres"]
+anomali_pool = ["res://data/units/anomali_tanpa_wajah_t1_strong.tres", "res://data/units/anomali_tanpa_wajah_t1_tank.tres"]
+
+[node name="Background" type="ColorRect" parent="." unique_id=745435374]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.13725491, 0.0627451, 0.64705884, 1)
+
+[node name="Arena" type="ColorRect" parent="." unique_id=822018218]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -478.0
+offset_top = -619.0
+offset_right = 465.0
+offset_bottom = 529.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.16, 0.08, 0.74, 1)
+script = ExtResource("3_bixej")
+base_unit_scene = ExtResource("4_3pfeg")
+grave_scene = ExtResource("5_ut5oq")
+
+[node name="PopupManager" type="CanvasLayer" parent="." unique_id=582687207]
+script = ExtResource("6_rc3n7")
+popup_panel_scene = ExtResource("7_igtv3")
+card_editor_path = NodePath("CardEditor")
+
+[node name="CardEditor" type="Control" parent="PopupManager" unique_id=1036752131]
+layout_mode = 3
+anchors_preset = 0
+offset_top = 1147.0
+offset_right = 1080.0
+offset_bottom = 1927.0
+script = ExtResource("8_card_editor_layout")
+pos_x = 50.0
+pos_y = 1280.0
+title_scale = 0.8500000000000001
+desc_scale = 2.55
+
+[node name="BG" type="ColorRect" parent="PopupManager/CardEditor" unique_id=1287090340]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.1, 0.6)
+
+[node name="Label" type="Label" parent="PopupManager/CardEditor" unique_id=1657847341]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.8)
+theme_override_font_sizes/font_size = 18
+text = "Card Editor"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PositionLabel" type="Label" parent="PopupManager/CardEditor" unique_id=559005666]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 300.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.6, 0.9, 0.6, 0.9)
+theme_override_font_sizes/font_size = 14
+text = "offset: 0, 640"
+
+[node name="SizeLabel" type="Label" parent="PopupManager/CardEditor" unique_id=330400328]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 36.0
+offset_right = 300.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(0.9, 0.6, 0.6, 0.9)
+theme_override_font_sizes/font_size = 14
+text = "size: 1080 x 780"
+
+[node name="ScaleLabel" type="Label" parent="PopupManager/CardEditor" unique_id=426596019]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 64.0
+offset_right = 300.0
+offset_bottom = 88.0
+theme_override_colors/font_color = Color(0.6, 0.6, 0.9, 0.9)
+theme_override_font_sizes/font_size = 14
+text = "title: 1.00 | desc: 1.00"

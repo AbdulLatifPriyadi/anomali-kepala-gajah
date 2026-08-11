@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3 uid="uid://dcrwn5k8p2tvm"]
+
+[ext_resource type="Script" uid="uid://cwzpd5fn8q3hh" path="res://scripts/weapon_data.gd" id="1_wpn"]
+
+[resource]
+script = ExtResource("1_wpn")
+id = &"stone_crown"
+display_name = "Stone Crown"
+description = "Wearer loses their ability entirely."
+attack_bonus = 0
+hp_bonus = 0
+knockback_override = 0.0
+speed_override = 0.0
+ability_override = 0
+flags = Array[StringName]([&"debuff", &"ability_disabler"])
+tint = Color(0.45, 0.45, 0.5, 1)

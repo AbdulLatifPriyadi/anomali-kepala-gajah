@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://b11g0yw5yawke"]
+
+[ext_resource type="Script" uid="uid://kogmljxsqpc4" path="res://scripts/popup_entry.gd" id="1_entry_script"]
+[ext_resource type="FontFile" uid="uid://cacywj00v1qrr" path="res://fonts/comic-sans-ms.ttf" id="2_comic_font"]
+[ext_resource type="Texture2D" uid="uid://cdy4v8yc70uar" path="res://assets/Card-Template.png" id="3_card_template"]
+
+[node name="PopupEntry" type="Button"]
+custom_minimum_size = Vector2(1080, 243)
+offset_right = 1080.0
+offset_bottom = 243.0
+flat = true
+script = ExtResource("1_entry_script")
+
+[node name="CardBg" type="TextureRect" parent="."]
+z_index = -1
+z_as_relative = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -125.0
+offset_top = -43.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_card_template")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Swatch" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -10.0
+offset_top = -27.0
+offset_right = 209.0
+offset_bottom = 225.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 0
+offset_left = 226.0
+offset_top = -38.0
+offset_right = 969.0
+offset_bottom = 38.0
+theme_override_fonts/font = ExtResource("2_comic_font")
+theme_override_font_sizes/font_size = 36
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="."]
+layout_mode = 0
+offset_left = 232.0
+offset_top = 49.0
+offset_right = 970.0
+offset_bottom = 227.0
+theme_override_fonts/font = ExtResource("2_comic_font")
+theme_override_font_sizes/font_size = 21
+vertical_alignment = 1

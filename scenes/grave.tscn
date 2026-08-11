@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://c1mw2yk288l68"]
+
+[ext_resource type="Script" uid="uid://dtaomle8d0j76" path="res://scripts/grave.gd" id="1_qpo7b"]
+
+[node name="Grave" type="Node2D" unique_id=450017454]
+script = ExtResource("1_qpo7b")
+
+[node name="Sprite" type="ColorRect" parent="." unique_id=101704641]
+offset_left = -14.0
+offset_top = -10.0
+offset_right = 14.0
+offset_bottom = 10.0
+color = Color(0.3, 0.35, 0.35, 0.9)
+
+[node name="Label" type="Label" parent="." unique_id=569484218]
+offset_left = -30.0
+offset_top = 14.0
+offset_right = 30.0
+offset_bottom = 37.0
+theme_override_font_sizes/font_size = 10
+text = "Grave"
+horizontal_alignment = 1

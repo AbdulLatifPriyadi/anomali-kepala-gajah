@@ -1,0 +1,36 @@
+# Godot-specific
+.godot/
+*.import
+*.tsl
+*.glb.import
+.import/
+export.cfg
+export_presets.cfg
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+*.backup
+*.orig
+*.tmp
+*~
+
+# Build output
+build/
+*.pck
+*.zip
+*.apk
+*.aab
+
+# Logs
+*.log
+
+# Temp
+tmp/
+temp/
+
+# Godot 4 secrets
+.godot/uid_cache.v2

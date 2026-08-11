@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WaveOptionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_option_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"w3_easy_2"
+label = "Easy Wave"
+description = "2 Brave Humans + 1 Knife Human — mixed threat."
+tint_color = Color(0.3, 0.7, 0.3, 1)
+swatch_texture = null
+title_scale = 1.0
+desc_scale = 1.0
+enemy_paths = ["res://data/units/brave_human_w3.tres", "res://data/units/brave_human_w3.tres", "res://data/units/brave_human_knife_w3.tres"]

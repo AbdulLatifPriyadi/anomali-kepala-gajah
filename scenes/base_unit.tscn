@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://dpi0x7my0imkr"]
+
+[ext_resource type="Script" uid="uid://djgcy4spkps3a" path="res://scripts/base_unit.gd" id="1_tkjqh"]
+[ext_resource type="Texture2D" uid="uid://b8sbdgdigforq" path="res://assets/Kepala Gajah - Tanpa Wajah - Tipe 1.png" id="2_n8bhp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n8bhp"]
+radius = 16.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hover"]
+size = Vector2(80, 260)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_b5m1k"]
+radius = 56.008926
+
+[node name="BaseUnit" type="CharacterBody2D" unique_id=1255275801]
+script = ExtResource("1_tkjqh")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1847864083]
+shape = SubResource("CircleShape2D_n8bhp")
+
+[node name="WeaponAnchor" type="Node2D" parent="." unique_id=205675336]
+visible = false
+
+[node name="WeaponSprite" type="Sprite2D" parent="WeaponAnchor" unique_id=614914967]
+
+[node name="BodySprite" type="Node2D" parent="." unique_id=1629062874]
+
+[node name="RimGlowLayer" type="Node2D" parent="BodySprite" unique_id=1000000005]
+modulate = Color(1, 0, 0, 0.5)
+
+[node name="N" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000010]
+offset = Vector2(0, -4)
+
+[node name="NE" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000011]
+offset = Vector2(2.83, -2.83)
+
+[node name="E" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000012]
+offset = Vector2(4, 0)
+
+[node name="SE" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000013]
+offset = Vector2(2.83, 2.83)
+
+[node name="S" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000014]
+offset = Vector2(0, 4)
+
+[node name="SW" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000015]
+offset = Vector2(-2.83, 2.83)
+
+[node name="W" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000016]
+offset = Vector2(-4, 0)
+
+[node name="NW" type="Sprite2D" parent="BodySprite/RimGlowLayer" unique_id=1000000017]
+offset = Vector2(-2.83, -2.83)
+
+[node name="AnomaliSprite" type="Sprite2D" parent="BodySprite" unique_id=1138683316]
+position = Vector2(4.999998, 3)
+scale = Vector2(0.78542626, 0.78729844)
+texture = ExtResource("2_n8bhp")
+
+[node name="HoverArea" type="Area2D" parent="." unique_id=1000000002]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HoverArea" unique_id=1000000003]
+shape = SubResource("RectangleShape2D_hover")
+
+[node name="HitBox" type="Area2D" parent="." unique_id=722095551]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox" unique_id=1604023457]
+shape = SubResource("CircleShape2D_b5m1k")
+
+[node name="HpBar" type="Node2D" parent="." unique_id=149361914]
+visible = false
+position = Vector2(-38, -193)
+
+[node name="HpBarBg" type="ColorRect" parent="HpBar" unique_id=1679205187]
+offset_right = 80.0
+offset_bottom = 8.0
+color = Color(0.1, 0.1, 0.1, 0.9)
+
+[node name="HpBarFill" type="ColorRect" parent="HpBar" unique_id=289300058]
+offset_right = 80.0
+offset_bottom = 8.0
+color = Color(0.2, 0.8, 0.2, 1)
+
+[node name="HpSnapshot" type="Node2D" parent="." unique_id="hp_snapshot_uid"]
+visible = false
+position = Vector2(-80, -260)
