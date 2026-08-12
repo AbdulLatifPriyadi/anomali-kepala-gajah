@@ -79,7 +79,7 @@ jobs:
           BUTLER_CREDENTIALS: ${{ secrets.ITCHIO_API_KEY }}
         run: |
           curl -Lfo butler.zip https://github.com/itchio/butler/releases/download/v15.30.0/butler-linux-amd64.zip
-          unzip -o butler.zip butler-linux-amd64
+          unzip -j butler.zip 'butler-linux-amd64*' -d .
           mv butler-linux-amd64 butler
           chmod +x butler
           ./butler push butler_upload/ ${{ vars.ITCHIO_GAME_ID }} --userversion ${{ github.run_number }}
