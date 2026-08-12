@@ -31,7 +31,7 @@ jobs:
       - name: Export for HTML5
         run: |
           mkdir -p build
-          godot --headless --export-release "HTML5" build/index.html
+          godot --headless --export-release "Web" build/index.html
 
       - name: Create itch.io game folder
         run: |
