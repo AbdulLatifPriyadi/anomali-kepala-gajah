@@ -36,19 +36,34 @@ jobs:
       - name: Create itch.io game folder
         run: |
           mkdir -p build/butler_upload
+          # Copy all Godot Web export files
           cp build/index.html build/butler_upload/
           cp build/index.js build/butler_upload/ 2>/dev/null || true
           cp build/index.wasm build/butler_upload/ 2>/dev/null || true
           cp build/index.pck build/butler_upload/ 2>/dev/null || true
           cp build/index.audio.worklet.js build/butler_upload/ 2>/dev/null || true
           cp build/index.worker.js build/butler_upload/ 2>/dev/null || true
+          cp build/index.asm.js build/butler_upload/ 2>/dev/null || true
+          cp build/index.jpg build/butler_upload/ 2>/dev/null || true
+          cp build/index.png build/butler_upload/ 2>/dev/null || true
+          cp build/index.privided.gz build/butler_upload/ 2>/dev/null || true
 
-      - name: Fix MIME types
+      - name: Create .htaccess for MIME types
         run: |
-          cd build/butler_upload
-          for f in *.wasm; do
-            echo -e '\n\n//# sourceMappingURL='"$f"'.map' >> "$f"
-          done
+          cat > build/butler_upload/.htaccess << 'EOF'
+          <FilesMatch "\.(wasm|js|pck|wasm\.map)$">
+            Header set Content-Type "application/wasm"
+          </FilesMatch>
+          <FilesMatch "\.(js)$">
+            Header set Content-Type "application/javascript"
+          </FilesMatch>
+          <FilesMatch "\.(pck)$">
+            Header set Content-Type "application/octet-stream"
+          </FilesMatch>
+          Header set Cross-Origin-Opener-Policy "same-origin"
+          Header set Cross-Origin-Embedder-Policy "require-corp"
+          Header set Cross-Origin-Resource-Policy "cross-origin"
+          EOF
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
