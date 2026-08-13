@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="UnitData" load_steps=2 format=3 uid="uid://kx5m0w8xnjcy"]
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://kx5m0w8xnjcy"]
 
 [ext_resource type="Script" uid="uid://bcsmy8sp372nl" path="res://scripts/unit_data.gd" id="1_l04mj"]
 
 [resource]
 script = ExtResource("1_l04mj")
 id = &"anomali_t1_tank"
-display_name = "Anomali Kepala Gajah - Tanpa Wajah - Tipe 1"
+display_name = "Tanpa Wajah - Tipe 1"
 description = "HP 15, ATK 3. Tankier — takes more hits, deals less per swing."
 max_hp = 15
 attack = 3
@@ -13,10 +13,4 @@ speed = 110.0
 speedwalk = 60.0
 knockback_force = 20.0
 attack_cooldown = 0.7
-attack_range = 28.0
-ability_id = 0
-starting_weapon = null
-tags = []
-faction = 0
-tint = Color(0.85, 0.75, 1.0, 1)
-weapon_anchor_offset = Vector2(0, 0)
+tint = Color(0.85, 0.75, 1, 1)

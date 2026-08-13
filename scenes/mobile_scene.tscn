@@ -59,16 +59,17 @@ popup_panel_scene = ExtResource("7_igtv3")
 card_editor_path = NodePath("CardEditor")
 
 [node name="CardEditor" type="Control" parent="PopupManager" unique_id=1036752131]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_top = 1147.0
 offset_right = 1080.0
 offset_bottom = 1927.0
 script = ExtResource("8_card_editor_layout")
-pos_x = 50.0
-pos_y = 1280.0
-title_scale = 0.8500000000000001
-desc_scale = 2.55
+popup_height = 820.0
+pos_y = 1100.0
+title_scale = 0.8999999999999999
+desc_scale = 0.6
 
 [node name="BG" type="ColorRect" parent="PopupManager/CardEditor" unique_id=1287090340]
 visible = false

@@ -17,6 +17,10 @@ class_name PopupManager
 const AbilityIds = preload("res://scripts/ability_ids.gd")
 const WaveOptionData = preload("res://scripts/wave_option_data.gd")
 
+## Preload stat icons so they can be passed to card entries.
+const CARD_HEART_TEX: CompressedTexture2D = preload("res://assets/card_heart.png")
+const CARD_ATTACK_TEX: CompressedTexture2D = preload("res://assets/card_attack.png")
+
 @export var popup_panel_scene: PackedScene
 ## NodePath to the CardEditor Control node (child of PopupManager in the scene).
 @export var card_editor_path: NodePath
@@ -124,26 +128,47 @@ func show_prize(opts: Array, on_pick: Callable) -> void:
 	for d in opts:
 		if d == null:
 			continue
+		var ud: UnitData = d as UnitData
 		entries.append({
-			"label": d.display_name,
-			"desc": d.description,
-			"tint": d.tint,
+			"label": ud.display_name if ud else "?",
+			"desc": ud.description if ud else "",
+			"tint": ud.tint if ud else Color.WHITE,
+			"swatch_texture": null,  # Use tint if no swatch
+			"hp_icon": CARD_HEART_TEX,
+			"hp_value": ud.max_hp if ud else 0,
+			"atk_icon": CARD_ATTACK_TEX,
+			"atk_value": ud.attack if ud else 0,
 			"data": d,
 		})
 	_show_panel("Pick a unit to recruit", entries, on_pick)
 
 func show_challenge(easy_wave: Array, hard_wave: Array, on_pick: Callable) -> void:
 	var entries: Array = []
+	# Summarize wave stats for display.
+	var easy_hp: int = _sum_hp(easy_wave)
+	var easy_atk: int = _sum_atk(easy_wave)
+	var hard_hp: int = _sum_hp(hard_wave)
+	var hard_atk: int = _sum_atk(hard_wave)
 	entries.append({
 		"label": "Easy Wave",
 		"desc": "Civilians, no equipment.",
 		"tint": Color(0.4, 0.8, 0.4, 1.0),
+		"swatch_texture": null,
+		"hp_icon": CARD_HEART_TEX,
+		"hp_value": easy_hp,
+		"atk_icon": CARD_ATTACK_TEX,
+		"atk_value": easy_atk,
 		"data": easy_wave,
 	})
 	entries.append({
 		"label": "Hard Wave",
 		"desc": "Knife-equipped civilians.",
 		"tint": Color(0.8, 0.4, 0.4, 1.0),
+		"swatch_texture": null,
+		"hp_icon": CARD_HEART_TEX,
+		"hp_value": hard_hp,
+		"atk_icon": CARD_ATTACK_TEX,
+		"atk_value": hard_atk,
 		"data": hard_wave,
 	})
 	_show_panel("Choose a challenge", entries, on_pick)
@@ -154,18 +179,33 @@ func show_checkpoint(on_choice: Callable) -> void:
 		"label": "Shop",
 		"desc": "(Coming soon)",
 		"tint": Color(0.7, 0.5, 0.2, 1.0),
+		"swatch_texture": null,
+		"hp_icon": null,
+		"hp_value": null,
+		"atk_icon": null,
+		"atk_value": null,
 		"data": "shop",
 	})
 	entries.append({
 		"label": "Explore",
 		"desc": "Roll a random encounter.",
 		"tint": Color(0.3, 0.5, 0.8, 1.0),
+		"swatch_texture": null,
+		"hp_icon": null,
+		"hp_value": null,
+		"atk_icon": null,
+		"atk_value": null,
 		"data": "explore",
 	})
 	entries.append({
 		"label": "Rest",
 		"desc": "Heal all units 20% max HP.",
 		"tint": Color(0.4, 0.7, 0.5, 1.0),
+		"swatch_texture": null,
+		"hp_icon": null,
+		"hp_value": null,
+		"atk_icon": null,
+		"atk_value": null,
 		"data": "rest",
 	})
 	_show_panel("Checkpoint", entries, on_choice)
@@ -177,7 +217,7 @@ func show_encounter(encounter_id: String, on_resolve: Callable) -> void:
 	match encounter_id:
 		"dark_forest":
 			entry_label = "Dark Forest"
-			entry_desc = "Fight 2 Wolves. Victory → Sword."
+			entry_desc = "Fight 2 Wolves. Victory -> Sword."
 		"statue":
 			entry_label = "Statue of Anomali"
 			entry_desc = "All units sacrifice 20% HP. One random gains Dracula."
@@ -191,6 +231,11 @@ func show_encounter(encounter_id: String, on_resolve: Callable) -> void:
 		"label": entry_label,
 		"desc": entry_desc,
 		"tint": Color(0.5, 0.3, 0.7, 1.0),
+		"swatch_texture": null,
+		"hp_icon": null,
+		"hp_value": null,
+		"atk_icon": null,
+		"atk_value": null,
 		"data": encounter_id,
 	})
 	_show_panel("Encounter: " + entry_label, entries, on_resolve)
@@ -199,11 +244,22 @@ func show_wave_options(options: Array, on_pick: Callable) -> void:
 	var entries: Array = []
 	for opt in options:
 		if opt is WaveOptionData:
+			var wave_units: Array = []
+			# Load UnitData from enemy_paths strings.
+			for path in opt.enemy_paths:
+				if path is String and not path.is_empty():
+					var ud: UnitData = load(path) as UnitData
+					if ud != null:
+						wave_units.append(ud)
 			entries.append({
 				"label": opt.label,
 				"desc": opt.description,
 				"tint": opt.tint_color,
 				"swatch_texture": opt.swatch_texture,
+				"hp_icon": CARD_HEART_TEX,
+				"hp_value": _sum_hp(wave_units),
+				"atk_icon": CARD_ATTACK_TEX,
+				"atk_value": _sum_atk(wave_units),
 				"title_scale": opt.title_scale,
 				"desc_scale": opt.desc_scale,
 				"data": opt,
@@ -211,3 +267,19 @@ func show_wave_options(options: Array, on_pick: Callable) -> void:
 	if entries.is_empty():
 		return
 	_show_panel("Choose a challenge", entries, on_pick)
+
+## Helper: sum max_hp from a list of UnitData.
+func _sum_hp(unit_list: Array) -> int:
+	var total: int = 0
+	for u in unit_list:
+		if u is UnitData:
+			total += u.max_hp
+	return total
+
+## Helper: sum attack from a list of UnitData.
+func _sum_atk(unit_list: Array) -> int:
+	var total: int = 0
+	for u in unit_list:
+		if u is UnitData:
+			total += u.attack
+	return total
