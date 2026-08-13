@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://titan bruiser009"]
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://titan_bruiser009"]
 
 [ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
 
