@@ -31,6 +31,8 @@ var _current_panel: Control = null
 var _on_dismiss: Callable = Callable()
 var _hiding: bool = false
 var _card_editor: Control = null
+var _pending_pick_callable: Callable = Callable()
+
 
 func _ready() -> void:
 	add_to_group(&"popup_manager")
@@ -122,6 +124,83 @@ func hide_panel() -> void:
 	visible = false
 
 ## ----- Public show_* API -----
+
+## Show prize with reroll support. The popup includes a Reroll button
+## that calls on_reroll when tapped (player spends 1 reroll).
+func show_prize_with_reroll(opts: Array, on_pick: Callable, rerolls_remaining: int, on_reroll: Callable) -> void:
+	var entries: Array = []
+	for d in opts:
+		if d == null:
+			continue
+		var ud: UnitData = d as UnitData
+		entries.append({
+			"label": ud.display_name if ud else "?",
+			"desc": ud.description if ud else "",
+			"tint": ud.tint if ud else Color.WHITE,
+			"swatch_texture": null,
+			"hp_icon": CARD_HEART_TEX,
+			"hp_value": ud.max_hp if ud else 0,
+			"atk_icon": CARD_ATTACK_TEX,
+			"atk_value": ud.attack if ud else 0,
+			"data": d,
+		})
+	if entries.is_empty():
+		return
+	var panel: Control = popup_panel_scene.instantiate()
+	add_child(panel)
+	var layout_scales: Dictionary = _get_card_editor_scales()
+	if panel.has_method("setup"):
+		panel.call("setup", "Pick a unit to recruit", entries, layout_scales)
+	if panel.has_signal("picked"):
+		panel.connect("picked", _on_panel_picked)
+	_on_dismiss = Callable()
+	_pending_pick_callable = on_pick
+	visible = true
+
+	var target_rect: Rect2 = _get_card_editor_rect()
+	panel.size = target_rect.size
+	panel.modulate.a = 0.0
+	panel.position = Vector2(target_rect.position.x, get_viewport().get_visible_rect().size.y)
+
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(panel, "modulate:a", 1.0, SLIDE_DURATION)
+	tw.tween_property(panel, "position:y", target_rect.position.y, SLIDE_DURATION)
+
+	# Add a reroll button as a sibling control.
+	_add_reroll_button(panel, rerolls_remaining, on_reroll)
+
+func _add_reroll_button(panel: Control, rerolls_remaining: int, on_reroll: Callable) -> void:
+	var btn := Button.new()
+	btn.text = "Reroll (%d)" % rerolls_remaining
+	btn.custom_minimum_size = Vector2(200, 50)
+	btn.anchor_left = 0.5
+	btn.anchor_right = 0.5
+	btn.anchor_top = 1.0
+	btn.anchor_bottom = 1.0
+	btn.offset_left = -100.0
+	btn.offset_top = -80.0
+	btn.offset_right = 100.0
+	btn.offset_bottom = -30.0
+	btn.z_index = 10
+	if rerolls_remaining <= 0:
+		btn.disabled = true
+		btn.tooltip_text = "No rerolls remaining"
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.3, 0.3, 0.5, 0.9)
+	style.set_corner_radius_all(8)
+	btn.add_theme_stylebox_override("normal", style)
+	var style_h := StyleBoxFlat.new()
+	style_h.bg_color = Color(0.4, 0.4, 0.7, 0.9)
+	style_h.set_corner_radius_all(8)
+	btn.add_theme_stylebox_override("hover", style_h)
+	btn.add_theme_font_size_override("font_size", 28)
+	panel.add_child(btn)
+	btn.pressed.connect(func(): _on_reroll_button(btn, on_reroll))
+
+func _on_reroll_button(btn: Button, on_reroll: Callable) -> void:
+	btn.disabled = true
+	if on_reroll.is_valid():
+		on_reroll.call()
 
 func show_prize(opts: Array, on_pick: Callable) -> void:
 	var entries: Array = []
@@ -267,6 +346,10 @@ func show_wave_options(options: Array, on_pick: Callable) -> void:
 	if entries.is_empty():
 		return
 	_show_panel("Choose a challenge", entries, on_pick)
+
+## Show a generic panel with custom entries (used for Shop).
+func show_panel(title: String, entries: Array, on_pick: Callable) -> void:
+	_show_panel(title, entries, on_pick)
 
 ## Helper: sum max_hp from a list of UnitData.
 func _sum_hp(unit_list: Array) -> int:

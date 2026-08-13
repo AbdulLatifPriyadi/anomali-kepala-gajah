@@ -141,7 +141,7 @@ func _is_outside_arena(screen_pos: Vector2) -> bool:
 func _is_in_combat() -> bool:
 	var gs = get_tree().root.get_node_or_null("GameState")
 	if gs != null:
-		return gs.phase == 4  # Phase.COMBAT
+		return gs.phase == 3  # Phase.COMBAT
 	return false
 
 ## Show HP snapshots on all alive player and enemy units when touching outside the arena.

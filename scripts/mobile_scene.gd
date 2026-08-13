@@ -1,26 +1,32 @@
 extends Control
-## Mobile scene orchestrator. Drives the state machine:
-##   EMPTY -> PRIZE_PICK -> CHALLENGE_PICK -> COMBAT -> ROUND_END
-##   -> (CHECKPOINT if 3rd pick & 3rd round) -> EMPTY
+## Mobile scene orchestrator. Drives the roguelike map loop:
+##   MAP_PICK (choose node) -> ROAD_TRAVEL -> node effect -> COMBAT/PRIZE/SHOP/etc.
+##   Prize is now ONLY from Prize nodes on the map, not post-combat.
 ##
 ## Uses GameState singleton as the source of truth for phase.
-## Uses PopupManager for prize/challenge/checkpoint/encounter popups.
+## Uses PopupManager for prize/challenge/shop popups.
+## Uses MapUI for the roguelike map display.
+## Uses WeatherManager for active weather events.
 
 const AbilityIds = preload("res://scripts/ability_ids.gd")
 const WaveOptionData = preload("res://scripts/wave_option_data.gd")
+const MapNode = preload("res://scripts/map_node.gd")
+const RoadData = preload("res://scripts/road_data.gd")
+const MapGenerator = preload("res://scripts/map_generator.gd")
 
 ## Arena node (child of this control). Spawns units & runs combat tick.
 @export var arena_path: NodePath
 ## PopupManager node (CanvasLayer).
 @export var popup_manager_path: NodePath
+## MapUI scene loaded dynamically at runtime for the roguelike map.
+const MAP_UI_SCENE: PackedScene = preload("res://scenes/map_ui.tscn")
 
 ## Card library (UnitData refs) used to roll prize options.
 @export var prize_pool: Array = []
 ## Legacy wave data (used if wave_options is empty).
 @export var easy_wave_data: Array = []
 @export var hard_wave_data: Array = []
-## Wave options display database. Controls popup position, text scales,
-## and per-wave title/description/tint/swatch for each wave+tier entry.
+## Wave options display database.
 @export var wave_options_database: Resource = null
 ## Wolf pool used by Dark Forest encounter.
 @export var wolf_pool: Array = []
@@ -31,6 +37,8 @@ const WaveOptionData = preload("res://scripts/wave_option_data.gd")
 
 @onready var arena: Arena = get_node_or_null(arena_path)
 @onready var popup_manager: PopupManager = get_node_or_null(popup_manager_path)
+## Dynamically instantiated MapUI (created in _ready).
+var map_ui: Control = null
 
 ## Loaded resources (resolved from string paths in editor arrays).
 var _prize_pool: Array[Resource] = []
@@ -38,8 +46,19 @@ var _easy_wave_data: Array[Resource] = []
 var _hard_wave_data: Array[Resource] = []
 var _wolf_pool: Array[Resource] = []
 var _anomali_pool: Array[Resource] = []
-## Guard: prevents _on_wave_cleared from firing twice (once on wave-clear, once on phase change).
+
+## Guard: prevents _on_wave_cleared from firing twice.
 var _heal_pending: bool = false
+
+## Map generator and current state.
+var _map_gen: MapGenerator = null
+var _map_nodes: Array[MapNode] = []
+var _map_roads: Array[RoadData] = []
+var _current_node_idx: int = 0
+var _pending_road: RoadData = null
+
+## Weather manager reference.
+var _weather: Node = null
 
 ## Helper: resolve the GameState autoload via node path. Avoids the
 ## "Identifier not found: GameState" compile error that happens when
@@ -64,7 +83,7 @@ func _handle_h_key() -> void:
 	var gs = _gs()
 	if gs == null:
 		return
-	if gs.phase != 4:  # Phase.COMBAT
+	if gs.phase != 3:  # Phase.COMBAT
 		return
 	_show_all_hp_snapshots()
 
@@ -73,7 +92,7 @@ func _handle_outside_arena_touch(screen_pos: Vector2) -> void:
 	var gs = _gs()
 	if gs == null:
 		return
-	if gs.phase != 4:  # Phase.COMBAT
+	if gs.phase != 3:  # Phase.COMBAT
 		return
 	# Check if outside arena bounds.
 	var is_outside: bool = true
@@ -107,6 +126,21 @@ func _ready() -> void:
 	_wolf_pool = _resolve_paths(wolf_pool)
 	_anomali_pool = _resolve_paths(anomali_pool)
 	_heal_pending = false
+
+	# Initialize map generator.
+	_map_gen = MapGenerator.new()
+
+	# Get weather manager.
+	_weather = get_node_or_null("/root/WeatherManager")
+
+	# Dynamically instantiate MapUI as a child of this node.
+	map_ui = MAP_UI_SCENE.instantiate()
+	map_ui.visible = false
+	map_ui.z_index = 10  # Render above arena
+	add_child(map_ui)
+	if map_ui.has_signal("node_selected"):
+		map_ui.connect("node_selected", _on_map_node_selected)
+
 	# Subscribe to phase transitions.
 	var gs: Node = _gs()
 	if gs:
@@ -115,10 +149,16 @@ func _ready() -> void:
 	if arena != null:
 		arena.wave_cleared.connect(_on_wave_cleared)
 		arena.player_unit_died.connect(_on_player_unit_died)
-	# Start the loop after a beat.
+
+	# Start the loop: generate map and enter MAP_PICK.
 	await get_tree().create_timer(0.4).timeout
 	if gs:
-		gs.call("set_phase", 1)  # PRIZE_PICK
+		# Reset weather for the new run.
+		if _weather:
+			_weather.call("reset_run")
+		# Generate and show the map.
+		_show_map()
+		gs.call("set_phase", 2)  # MAP_PICK
 
 func _resolve_paths(paths: Array) -> Array[Resource]:
 	var out: Array[Resource] = []
@@ -131,35 +171,235 @@ func _resolve_paths(paths: Array) -> Array[Resource]:
 			out.append(p)
 	return out
 
+## ---- Map System ----
+
+func _show_map() -> void:
+	_map_gen.generate()
+	_map_nodes = _map_gen.get_nodes()
+	_map_roads = _map_gen.get_roads()
+	_current_node_idx = 0
+	if map_ui != null and map_ui.has_method("show_map"):
+		map_ui.show_map()
+
+## Called when the player taps a node on the map UI.
+func _on_map_node_selected(node_idx: int) -> void:
+	if node_idx < 0 or node_idx >= _map_nodes.size():
+		return
+	var gs: Node = _gs()
+	if gs == null:
+		return
+	# Find the road connecting current node to selected node.
+	var road: RoadData = _find_road(_current_node_idx, node_idx)
+	if road == null:
+		return
+
+	_pending_road = road
+	# Hide map.
+	if map_ui != null:
+		map_ui.visible = false
+
+	# Tell GameState about the travel.
+	gs.call("on_node_traveled", node_idx, road.road_type)
+
+	# Resolve the road: spike damage, ambush roll.
+	await _resolve_road_travel(road)
+
+	# Advance to the destination node.
+	_map_nodes[node_idx].visited = true
+	_map_nodes[node_idx].is_current = true
+	_map_nodes[_current_node_idx].is_current = false
+	_current_node_idx = node_idx
+
+	# Roll for new weather (only if not entering combat from ambush).
+	var is_ambush: bool = road.ambush_triggered
+	if not is_ambush and _weather:
+		_weather.call("on_node_traversed")
+		_weather.call("roll_new_weather")
+
+	# Handle the node's effect.
+	if is_ambush:
+		# Ambush: build ambush wave and start combat.
+		gs.pending_wave = _build_ambush_wave()
+		gs.call("set_phase", 3)  # COMBAT
+	elif _pending_road.has_spike_damage():
+		_pending_road.spike_damage_applied = true
+		_apply_spike_damage()
+		# Spike has no combat — go to node effect.
+		gs.call("on_reached_node", _map_nodes[node_idx].node_type, node_idx)
+	else:
+		gs.call("on_reached_node", _map_nodes[node_idx].node_type, node_idx)
+
+## Find the road connecting two adjacent nodes.
+func _find_road(from_idx: int, to_idx: int) -> RoadData:
+	for r in _map_roads:
+		if r.from_node == from_idx and r.to_node == to_idx:
+			return r
+	return null
+
+## Resolve road events: spike damage, ambush roll.
+func _resolve_road_travel(road: RoadData) -> void:
+	# Spike: apply -2 HP to all units.
+	if road.has_spike_damage():
+		_apply_spike_damage()
+		road.spike_damage_applied = true
+		return
+
+	# Roll for ambush.
+	var rain_active: bool = false
+	if _weather and _weather.has_method("is_rain_active"):
+		rain_active = _weather.call("is_rain_active")
+	var ambush_chance: float = road.get_ambush_chance(rain_active)
+	var roll: float = randf()
+	if roll < ambush_chance:
+		road.ambush_triggered = true
+	else:
+		road.ambush_triggered = false
+
+## Apply -2 HP spike damage to all player units.
+func _apply_spike_damage() -> void:
+	for u in get_tree().get_nodes_in_group(&"player_units"):
+		var bu: BaseUnit = u as BaseUnit
+		if bu != null and is_instance_valid(bu) and bu.current_hp > 0:
+			bu.take_damage(2, null)
+
+## Build an ambush combat wave (standard challenge-tier enemies).
+func _build_ambush_wave() -> Array:
+	# Ambush is always a challenge-tier fight.
+	var wave_num: int = 1
+	var opts: Array[WaveOptionData] = []
+	_build_wave_options_for(wave_num, opts)
+	if opts.size() > 0:
+		var chosen: WaveOptionData = opts[randi() % opts.size()]
+		return _load_wave_paths(chosen.enemy_paths)
+	return []
+
+## Build the combat wave for a given node's type and difficulty.
+func _build_node_combat_wave(node: MapNode) -> Array:
+	var opts: Array[WaveOptionData] = []
+	var wave_num: int = node.col + 1  # Map column + 1 = effective wave number
+	_build_wave_options_for(wave_num, opts)
+	# Pick the wave option matching the node's difficulty.
+	var chosen: WaveOptionData = null
+	for opt in opts:
+		if opt.label.to_lower().contains(node.wave_difficulty):
+			chosen = opt
+			break
+	if chosen == null and opts.size() > 0:
+		chosen = opts[0]
+	if chosen != null:
+		return _load_wave_paths(chosen.enemy_paths)
+	return []
+
+func _load_wave_paths(paths: Array) -> Array:
+	var result: Array = []
+	for unit_path in paths:
+		if unit_path is String and not unit_path.is_empty():
+			var ud: Resource = load(unit_path)
+			if ud != null:
+				result.append(ud)
+	return result
+
+## ---- Shop System ----
+
+func _show_shop() -> void:
+	if popup_manager == null:
+		return
+	var gs: Node = _gs()
+	if gs == null:
+		return
+	# Build shop entries based on available gold.
+	var entries: Array = []
+	var gold: int = int(gs.get("gold", 0))
+
+	# Heal option: spend 5 gold to heal all units 50% HP.
+	if gold >= 5:
+		entries.append({
+			"label": "Heal All",
+			"desc": "Heal all units 50% max HP. Cost: 5 gold.",
+			"tint": Color(0.3, 0.8, 0.4, 1.0),
+			"data": "heal_all",
+		})
+	# Reroll restore: spend 3 gold to get +1 reroll.
+	if gold >= 3:
+		entries.append({
+			"label": "Reroll Fuel",
+			"desc": "+1 prize reroll. Cost: 3 gold.",
+			"tint": Color(0.7, 0.5, 0.2, 1.0),
+			"data": "reroll",
+		})
+	# Quit button.
+	entries.append({
+		"label": "Leave Shop",
+		"desc": "Continue exploring.",
+		"tint": Color(0.5, 0.5, 0.5, 1.0),
+		"data": "quit",
+	})
+	if entries.is_empty():
+		entries.append({
+			"label": "No gold",
+			"desc": "Come back when you have gold.",
+			"tint": Color(0.4, 0.4, 0.4, 1.0),
+			"data": "quit",
+		})
+	popup_manager.show_panel("Shop — %d gold" % gold, entries, _on_shop_picked)
+
+func _on_shop_picked(data: Variant) -> void:
+	var gs: Node = _gs()
+	if gs == null:
+		return
+	var choice: String = str(data)
+	match choice:
+		"heal_all":
+			if gs.call("spend_gold", 5):
+				_apply_heal_all(0.5)
+		"reroll":
+			if gs.call("spend_gold", 3):
+				gs.rerolls_remaining += 1
+				gs.rerolls_changed.emit(gs.rerolls_remaining)
+	# Return to map.
+	gs.call("set_phase", 2)  # MAP_PICK
+
+func _apply_heal_all(fraction: float) -> void:
+	for u in get_tree().get_nodes_in_group(&"player_units"):
+		var bu: BaseUnit = u as BaseUnit
+		if bu != null and is_instance_valid(bu) and bu.current_hp > 0:
+			var heal_amount: int = int(bu.max_hp * fraction)
+			bu.current_hp = mini(bu.current_hp + heal_amount, bu.max_hp)
+			bu.hp_changed.emit(bu.current_hp, bu.max_hp)
+
 func _on_phase_changed(new_phase: int, _prev: int) -> void:
-	# Use literal integer values from the GameState.Phase enum:
-	#   EMPTY=0, PRIZE_PICK=1, CHALLENGE_PICK=2, CHECKPOINT=3,
-	#   COMBAT=4, ROUND_END=5, GAME_OVER=6
+	# Phase enum values:
+	#   EMPTY=0, PRIZE_PICK=1, MAP_PICK=2, COMBAT=3,
+	#   ROUND_END=4, GAME_OVER=5, SHOP=6, AMBUSH=7
 	var gs: Node = _gs()
 	if gs == null:
 		return
 	match new_phase:
 		1:  # PRIZE_PICK
 			_show_prize()
-		2:  # CHALLENGE_PICK
-			_show_challenge()
-		4:  # COMBAT
+		2:  # MAP_PICK
+			if map_ui:
+				map_ui.show_map()
+		3:  # COMBAT
 			_start_combat()
-		5:  # ROUND_END
+		4:  # ROUND_END
 			await get_tree().create_timer(0.8).timeout
 			gs.call("on_round_end_processed")
-		3:  # CHECKPOINT
-			_show_checkpoint()
-		0:  # EMPTY
-			await get_tree().create_timer(0.4).timeout
-			gs.call("set_phase", 1)  # PRIZE_PICK
-		6:  # GAME_OVER
+		5:  # GAME_OVER
 			_show_game_over()
+		6:  # SHOP
+			_show_shop()
+		0:  # EMPTY — shouldn't happen in map mode, but handle gracefully
+			await get_tree().create_timer(0.4).timeout
+			if gs:
+				gs.call("set_phase", 2)  # MAP_PICK
 
 func _show_prize() -> void:
 	if popup_manager == null:
 		return
-	popup_manager.show_prize(_prize_pool, _on_prize_picked)
+	var gs: Node = _gs()
+	var rerolls: int = int(gs.get("rerolls_remaining", 0)) if gs else 0
+	popup_manager.show_prize_with_reroll(_prize_pool, _on_prize_picked, rerolls, _on_prize_reroll)
 
 func _on_prize_picked(unit_data: Resource) -> void:
 	if unit_data == null:
@@ -170,6 +410,15 @@ func _on_prize_picked(unit_data: Resource) -> void:
 		arena.spawn_player_unit(unit_data, spawn_idx)
 	if gs:
 		gs.call("on_prize_picked", unit_data)
+
+func _on_prize_reroll() -> void:
+	var gs: Node = _gs()
+	if gs == null:
+		return
+	if not gs.call("use_reroll"):
+		return  # No rerolls left.
+	# Show the prize popup again with a fresh random pair.
+	popup_manager.show_prize(_prize_pool, _on_prize_picked)
 
 func _show_challenge() -> void:
 	if popup_manager == null:
@@ -396,13 +645,13 @@ func _describe_paths(paths: Array) -> String:
 		counts[p] = counts.get(p, 0) + 1
 	var parts: Array = []
 	for p in counts:
-		var name: String = "Unknown"
+		var unit_name: String = "Unknown"
 		var data: Resource = load(p)
 		if data != null:
 			var dn = data.get("display_name")
 			if dn != null:
-				name = str(dn)
-		parts.append("%dx %s" % [counts[p], name])
+				unit_name = str(dn)
+		parts.append("%dx %s" % [counts[p], unit_name])
 	return ", ".join(parts)
 
 func _on_wave_option_picked(option: WaveOptionData) -> void:
@@ -410,7 +659,7 @@ func _on_wave_option_picked(option: WaveOptionData) -> void:
 		return
 	# enemy_paths is pre-picked — no random sub-selection needed.
 	var enemy_data: Array = []
-	for path in option.enemy_paths:
+	for p in option.enemy_paths:
 		var r: Resource = load(path)
 		if r != null:
 			enemy_data.append(r)
@@ -426,24 +675,46 @@ func _on_challenge_picked(wave: Array) -> void:
 func _start_combat() -> void:
 	_heal_pending = false
 	BaseUnit._heal_sound_played = false
-	if arena != null:
-		var gs: Node = _gs()
-		if gs:
-			arena.spawn_wave(gs.pending_wave)
+	if arena == null:
+		return
+	var gs: Node = _gs()
+	if gs == null:
+		return
+
+	# Build the combat wave: check if we're in an ambush, otherwise use node's wave.
+	var wave_data: Array = []
+	if gs.pending_wave.size() > 0:
+		# Ambush or pre-set wave.
+		wave_data = gs.pending_wave
+	else:
+		# Node-based wave: build from current map node.
+		var current_node: MapNode = _map_nodes[_current_node_idx] if _current_node_idx < _map_nodes.size() else null
+		if current_node != null:
+			wave_data = _build_node_combat_wave(current_node)
+		# Apply weather modifiers to wave.
+		if _weather:
+			var extra: Array = _weather.call("get_combat_extra_enemies")
+			for extra_enemy in extra:
+				wave_data.append(extra_enemy)
+			gs.storm_damage_mult = _weather.call("get_storm_multiplier")
+
+	# If no wave data, skip combat (e.g., Rest node).
+	if wave_data.is_empty():
+		gs.call("set_phase", 4)  # ROUND_END
+		return
+
+	arena.spawn_wave(wave_data)
 
 func _on_wave_cleared() -> void:
 	# Only process if we're in COMBAT phase — prevents stale calls after phase changes.
 	var gs: Node = _gs()
-	if gs == null or gs.phase != gs.Phase.COMBAT:
+	if gs == null or gs.phase != 3:  # Phase.COMBAT
 		return
 	if _heal_pending:
-		return  # Guard: only process the first wave_cleared event per round.
+		return
 	_heal_pending = true
 	# Wait 2 seconds, heal, then signal.
-	# Phase transition to ROUND_END happens via _on_phase_changed(5) when
-	# game_state.on_combat_ended() eventually calls set_phase(ROUND_END).
 	await get_tree().create_timer(2.0).timeout
-	# Reset sound guard before healing so the first unit fires the sound.
 	BaseUnit._heal_sound_played = false
 	# Heal all surviving player units.
 	if arena != null:
@@ -451,10 +722,15 @@ func _on_wave_cleared() -> void:
 			var bu: BaseUnit = u as BaseUnit
 			if bu != null and is_instance_valid(bu):
 				bu.round_end_heal()
-	# Notify GameState to increment round counter and transition to ROUND_END.
+	# Apply Spike road damage if not already applied.
+	if _pending_road != null and _pending_road.has_spike_damage() and not _pending_road.spike_damage_applied:
+		_apply_spike_damage()
+		_pending_road.spike_damage_applied = true
+	# Notify GameState.
 	if gs:
-		gs.call("on_combat_ended")  # increments rounds, emits signals; set_phase is NOT called here
-		gs.call("set_phase", 5)     # ROUND_END → triggers _on_phase_changed(5)
+		gs.pending_wave.clear()
+		gs.call("on_combat_ended")
+		gs.call("set_phase", 4)  # ROUND_END
 
 func _on_player_unit_died(unit: BaseUnit, _grave_pos: Vector2) -> void:
 	if unit != null and unit.unit_data != null:

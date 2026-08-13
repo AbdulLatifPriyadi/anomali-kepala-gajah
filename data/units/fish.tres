@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://fish_weather001"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"fish"
+display_name = "Fish"
+description = "Weather spawn. HP 2, ATK 2. Swims through the chaos."
+max_hp = 2
+attack = 2
+speed = 100.0
+speedwalk = 50.0
+knockback_force = 10.0
+attack_cooldown = 0.7
+attack_range = 25.0
+ability_id = 0
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.3, 0.6, 0.8, 1)
+weapon_anchor_offset = Vector2(0, 0)
