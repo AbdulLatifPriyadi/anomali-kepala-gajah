@@ -20,8 +20,8 @@ config/icon="res://icon.svg"
 SoundManager="*res://scripts/sound_manager.gd"
 GameState="*res://scripts/game_state.gd"
 WeaponManager="*res://scripts/weapon_manager.gd"
-WeatherManager="*res://scripts/weather_manager.gd"
 TouchInput="*res://scripts/touch_input_handler.gd"
+WeatherManager="*res://scripts/weather_manager.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]

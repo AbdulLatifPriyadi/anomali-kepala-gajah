@@ -99,7 +99,21 @@ func has_spike_damage() -> bool:
 
 ## Returns true if Shop is guaranteed after traversing this road.
 func has_guaranteed_shop() -> bool:
-	return GUARANTEED_SHOP.get(road_type, false)
+	return GUARANTEES_SHOP.get(road_type, false)
+
+## Static helper: check if a road type guarantees a shop.
+## Use this when you don't have a RoadData instance.
+static func type_guarantees_shop(rt: int) -> bool:
+	var map := {
+		0: false,   # PLAIN
+		1: false,   # FOREST
+		2: false,   # STONE
+		3: false,   # ABYSS
+		4: false,   # BRIDGE
+		5: false,   # SPIKE
+		6: true,    # MARKET
+	}
+	return map.get(rt, false)
 
 func _to_string() -> String:
 	return "<Road %s (%s)>" % [TYPE_LABELS.get(road_type, "?"), str(from_node) + "->" + str(to_node)]

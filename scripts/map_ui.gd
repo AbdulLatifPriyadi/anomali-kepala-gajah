@@ -101,7 +101,16 @@ func _create_node_button(n: MapNode, idx: int) -> void:
 	btn.position = n.position - Vector2(40, 25)
 
 	# Tint the button by node type.
-	var tint := MapNode.TYPE_TINTS.get(n.node_type, Color.GRAY)
+	var tint: Color = Color.GRAY
+	match n.node_type:
+		0: tint = Color(0.3, 0.8, 0.3, 1.0)   # PRIZE
+		1: tint = Color(0.4, 0.6, 0.8, 1.0)   # CHALLENGE
+		2: tint = Color(0.8, 0.4, 0.3, 1.0)   # CHALLENGE_HARD
+		3: tint = Color(0.7, 0.3, 0.7, 1.0)   # ELITE
+		4: tint = Color(0.8, 0.1, 0.1, 1.0)   # BOSS
+		5: tint = Color(0.3, 0.7, 0.5, 1.0)   # REST
+		6: tint = Color(0.8, 0.6, 0.2, 1.0)   # SHOP
+		7: tint = Color(0.5, 0.3, 0.7, 1.0)   # ADVENTURE
 	btn.add_theme_color_override("font_color", Color.WHITE)
 	btn.add_theme_color_override("font_hover_color", Color.WHITE)
 

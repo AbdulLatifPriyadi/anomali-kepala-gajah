@@ -145,6 +145,7 @@ func _ready() -> void:
 	var gs: Node = _gs()
 	if gs:
 		gs.connect("phase_changed", _on_phase_changed)
+		gs.connect("rest_node_reached", _on_rest_node_reached)
 	# Subscribe to arena events.
 	if arena != null:
 		arena.wave_cleared.connect(_on_wave_cleared)
@@ -660,7 +661,7 @@ func _on_wave_option_picked(option: WaveOptionData) -> void:
 	# enemy_paths is pre-picked — no random sub-selection needed.
 	var enemy_data: Array = []
 	for p in option.enemy_paths:
-		var r: Resource = load(path)
+		var r: Resource = load(p)
 		if r != null:
 			enemy_data.append(r)
 	var gs: Node = _gs()
@@ -763,6 +764,9 @@ func _rest_all_units() -> void:
 		var bu: BaseUnit = u
 		if bu != null and is_instance_valid(bu):
 			bu.rest_heal()
+
+func _on_rest_node_reached() -> void:
+	_rest_all_units()
 
 func _pick_random_encounter() -> void:
 	var choices: Array[String] = ["dark_forest", "statue", "mancing"]

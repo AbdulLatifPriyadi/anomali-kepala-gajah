@@ -91,8 +91,6 @@ func _show_panel(title: String, entries: Array, on_pick: Callable) -> void:
 	tw.tween_property(_current_panel, "modulate:a", 1.0, SLIDE_DURATION)
 	tw.tween_property(_current_panel, "position:y", target_rect.position.y, SLIDE_DURATION)
 
-var _pending_pick_callable: Callable = Callable()
-
 func _on_panel_picked(data) -> void:
 	var cb: Callable = _pending_pick_callable
 	_hide_panel_animated()

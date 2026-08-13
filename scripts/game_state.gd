@@ -15,6 +15,7 @@ signal combat_ended()
 signal map_node_traveled(node_index: int, road_type: int)
 signal gold_changed(amount: int)
 signal rerolls_changed(remaining: int)
+signal rest_node_reached()
 
 const RoadData = preload("res://scripts/road_data.gd")
 
@@ -106,7 +107,8 @@ func on_node_traveled(node_index: int, road_type: int) -> void:
 	map_node_traveled.emit(node_index, road_type)
 	# ROUND_END now represents the travel/road resolution phase.
 	# Spike road: apply -2 HP to all units immediately.
-	if RoadData.GUARANTEED_SHOP.get(road_type, false):
+	# MARKET road (type 6) guarantees a shop after.
+	if road_type == 6:  # RoadData.RoadType.MARKET
 		pending_shop_after_combat = true
 	# Gold source: award some gold for completing a node.
 	gold += 1
@@ -131,7 +133,9 @@ func on_reached_node(node_type: int, node_index: int) -> void:
 			set_phase(Phase.COMBAT)
 			combat_started.emit()
 		5:  # REST
-			_apply_rest_heal()
+			rest_node_reached.emit()
+			gold += 3
+			gold_changed.emit(gold)
 			set_phase(Phase.MAP_PICK)
 		6:  # SHOP
 			set_phase(Phase.SHOP)
@@ -139,13 +143,6 @@ func on_reached_node(node_type: int, node_index: int) -> void:
 			# Adventure is resolved immediately — pick a random outcome.
 			_resolve_adventure()
 			set_phase(Phase.MAP_PICK)
-
-## Apply rest node effect: full heal + small gold bonus.
-func _apply_rest_heal() -> void:
-	for unit_data in army_data:
-		pass  # Healing is handled by base_unit round_end_heal() in mobile_scene.
-	gold += 3
-	gold_changed.emit(gold)
 
 ## Resolve an Adventure event with a random outcome.
 func _resolve_adventure() -> void:

@@ -93,7 +93,7 @@ func on_node_traversed() -> void:
 			expired.append(ev)
 	for ev in expired:
 		_active_events.erase(ev)
-		weather_ended.emit(TYPE_LABELS.get(ev.get("type", 0), "?"), int(ev.get("remaining", 0))
+		weather_ended.emit(TYPE_LABELS.get(ev.get("type", 0), "?"), int(ev.get("remaining", 0)))
 	weather_updated.emit(get_active_event_types())
 
 ## Roll for a new weather event. Call this at the start of each node transition.

@@ -902,7 +902,7 @@ func round_end_heal() -> void:
 func rest_heal() -> void:
 	if current_hp <= 0:
 		return
-	var heal: int = int(max_hp * 0.2)
+	var heal: int = int(max_hp * 0.5)  # Rest node: 50% max HP
 	if heal > 0:
 		current_hp = min(current_hp + heal, max_hp)
 		hp_changed.emit(current_hp, max_hp)

@@ -198,47 +198,58 @@ func _roll_adventure_description() -> String:
 func _roll_node_type(col: int, row: int) -> MapNode.Type:
 	# Column 0 is the start node — handled before this loop.
 	# Boss column is handled before this loop.
-	# Special structural gates:
-	#   Row 0: path convergence near boss (3 boss-adjacent nodes).
-	#   Elite gate around col 5-6 (always at least one elite on any path).
-	#   Prize appears every 2-3 columns on average.
+	#
+	# Impact-based rarity distribution:
+	#   LOW impact (common):     CHALLENGE (auto-combat, normal stats)
+	#   LOW impact (common):    PRIZE (safe reward, no combat)
+	#   MEDIUM impact (uncommon): CHALLENGE_HARD (harder wave)
+	#   MEDIUM impact (uncommon): REST (50% heal, safe)
+	#   MEDIUM impact (uncommon): ADVENTURE (random outcome, risk/reward)
+	#   HIGH impact (rare):     SHOP (gold economy)
+	#   HIGH impact (rare):     ELITE (unique abilities, significant threat)
+	#   MAX impact (structural): BOSS (end-of-act gate, mandatory)
 
 	var depth_fraction := float(col) / float(TOTAL_COLS)
 
 	# Always converge rows toward the center as we approach the boss.
 	var convergence: float = abs(float(row) - float(ROWS) / 2.0) / float(ROWS)
 	if depth_fraction > 0.8 and convergence > 0.5:
-		# Dead-end nodes near boss convergence: lighter types only.
+		# Near-boss convergence: only low/medium impact (high-impact is already unavoidable at boss).
 		return _weighted_pick({
-			MapNode.Type.CHALLENGE: 3,
-			MapNode.Type.REST: 1,
+			MapNode.Type.CHALLENGE: 5,
+			MapNode.Type.REST: 2,
 			MapNode.Type.ADVENTURE: 1,
 		})
 
-	# Elite gate: col 5-6, roughly 1-2 elites visible.
+	# Elite gate: col 4-7 center row. Keep it dangerous.
 	if col >= 4 and col <= 7 and row == ROWS / 2:
 		return _weighted_pick({
 			MapNode.Type.ELITE: 2,
-			MapNode.Type.CHALLENGE_HARD: 2,
-			MapNode.Type.CHALLENGE: 1,
+			MapNode.Type.CHALLENGE_HARD: 3,
+			MapNode.Type.CHALLENGE: 3,
 		})
 
-	# Prize every ~2 columns.
-	if col % 2 == 0:
+	# Prize column (every 2 cols): mostly safe, but not 100%.
+	# Pure random generation means some paths may be all-combat.
+	if col % 2 == 0 and col > 0:
 		return _weighted_pick({
-			MapNode.Type.PRIZE: 3,
-			MapNode.Type.CHALLENGE: 1,
+			MapNode.Type.PRIZE: 4,
+			MapNode.Type.CHALLENGE: 2,
 			MapNode.Type.REST: 1,
 		})
 
-	# Standard column: weighted mix.
+	# Standard column: LOW impact dominates, HIGH impact is rare.
+	# Total weight = 1+5+2+2+1+1 = 12
+	# CHALLENGE (5/12 ~42%), PRIZE (2/12 ~17%), REST (2/12 ~17%),
+	# CHALLENGE_HARD (1/12 ~8%), ADVENTURE (1/12 ~8%),
+	# SHOP (1/12 ~8% rare), ELITE (0 here — structural gates only).
 	return _weighted_pick({
-		MapNode.Type.CHALLENGE: 3,
+		MapNode.Type.CHALLENGE: 5,
+		MapNode.Type.PRIZE: 2,
 		MapNode.Type.CHALLENGE_HARD: 2,
-		MapNode.Type.ELITE: 1,
 		MapNode.Type.REST: 2,
+		MapNode.Type.ADVENTURE: 1,
 		MapNode.Type.SHOP: 1,
-		MapNode.Type.ADVENTURE: 2,
 	})
 
 ## Weighted pick: keys are enum values, values are weights.
