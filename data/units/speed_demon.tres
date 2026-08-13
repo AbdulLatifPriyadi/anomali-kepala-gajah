@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://speed_demon004"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"speed_demon"
+display_name = "Speed Demon"
+description = "Shadow-blur assassin. HP 4, ATK 4. Moves at lightning speed — hard to pin down."
+max_hp = 4
+attack = 4
+speed = 280.0
+speedwalk = 140.0
+knockback_force = 15.0
+attack_cooldown = 0.5
+attack_range = 30.0
+ability_id = 3
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.2, 0.2, 0.4, 1)
+weapon_anchor_offset = Vector2(0, 0)

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://vampire_lord007"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"vampire_lord"
+display_name = "Vampire Lord"
+description = "Undead lord. HP 15, ATK 4. Drains life — hard to wear down."
+max_hp = 15
+attack = 4
+speed = 120.0
+speedwalk = 65.0
+knockback_force = 25.0
+attack_cooldown = 0.6
+attack_range = 32.0
+ability_id = 2
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.5, 0.1, 0.3, 1)
+weapon_anchor_offset = Vector2(0, 0)

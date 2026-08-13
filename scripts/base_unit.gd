@@ -44,6 +44,9 @@ var current_hp: int = 10
 var max_hp: int = 10
 ## Multiplier for max HP (set by Arena to double for longer games).
 var _hp_scale: float = 1.0
+## Per-wave stat scaling for enemy units. Set by Arena before spawning.
+## Applied in apply_data_to_self() to both HP and ATK.
+var _wave_scale: float = 1.0
 
 ## Effective stats after weapon modifiers applied.
 var eff_attack: int = 1
@@ -229,8 +232,8 @@ func apply_data_to_self() -> void:
 	## again by Arena when overriding HP scale for harder waves.
 	if unit_data == null:
 		return
-	max_hp = int(unit_data.max_hp * _hp_scale)
-	eff_attack = unit_data.attack
+	max_hp = int(unit_data.max_hp * _hp_scale * _wave_scale)
+	eff_attack = int(unit_data.attack * _wave_scale)
 	eff_speed = unit_data.speed
 	eff_speedwalk = unit_data.speedwalk
 	eff_knockback = unit_data.knockback_force

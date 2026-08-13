@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://sword_warlord011"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+[ext_resource type="Resource" path="res://data/weapons/sword.tres" id="2_sword"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"sword_warlord"
+display_name = "Sword Warlord"
+description = "War chief. HP 20, ATK 7. Armed with a sword — a true boss."
+max_hp = 20
+attack = 7
+speed = 100.0
+speedwalk = 50.0
+knockback_force = 28.0
+attack_cooldown = 0.6
+attack_range = 35.0
+ability_id = 0
+starting_weapon = ExtResource("2_sword")
+tags = []
+faction = 1
+tint = Color(0.7, 0.55, 0.2, 1)
+weapon_anchor_offset = Vector2(-300, -1000)

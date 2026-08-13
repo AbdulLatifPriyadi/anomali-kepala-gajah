@@ -22,6 +22,10 @@ class_name Arena
 ## How many units deep the spawn row goes (vertical offset multiplier).
 @export var spawn_vertical_step: float = 50.0
 
+## Per-wave stat scaling: set before spawn_wave() is called.
+## Computed as 1.0 + (wave_num - 1) * 0.1 from GameState.
+var _wave_scale: float = 1.0
+
 ## Liveset: every BaseUnit alive in the arena. Refreshed each frame.
 var _units: Array[BaseUnit] = []
 ## Row counters for spread-spawning.
@@ -68,6 +72,9 @@ func spawn_unit(unit_data: Resource, _spawn_index: int) -> BaseUnit:
 	# setting _hp_scale because _ready() already ran during instantiate()
 	# with the default _hp_scale=1.0.
 	u._hp_scale = 2.0
+	# Per-wave stat scaling: enemy HP and base ATK grow +10% per completed round.
+	if unit_data.faction == 1:
+		u._wave_scale = _wave_scale
 	u.apply_data_to_self()
 	# Place the unit at a random position inside the arena. The inner
 	# margin matches the unit's clamp radius in base_unit.gd so the
@@ -93,6 +100,7 @@ func _random_arena_position(faction: int) -> Vector2:
 
 ## Spawn an entire enemy wave (array of UnitData). Returns the units.
 ## Each enemy spawns at a random arena position.
+## Per-wave stat scaling increases enemy HP and ATK as waves progress.
 func spawn_wave(enemy_data: Array) -> Array[BaseUnit]:
 	var spawned: Array[BaseUnit] = []
 	_spawn_count = 0
@@ -100,6 +108,12 @@ func spawn_wave(enemy_data: Array) -> Array[BaseUnit]:
 	# Reset victory knockback guard so the burst fires for this new wave.
 	_victory_knockback_fired = false
 	_last_enemy_death_pos = Vector2.ZERO
+	# Compute per-wave scale from GameState (every 5 waves: +10% stats).
+	var gs: Node = get_node_or_null("/root/GameState")
+	var rounds_completed: int = 0
+	if gs and gs.has("rounds_completed"):
+		rounds_completed = int(gs.get("rounds_completed"))
+	_wave_scale = 1.0 + float(rounds_completed) * 0.1
 	for data in enemy_data:
 		var u: BaseUnit = spawn_unit(data, _spawn_count)
 		_spawn_count += 1

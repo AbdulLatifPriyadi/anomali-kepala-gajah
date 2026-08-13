@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://wolf_pack_alpha006"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"wolf_pack_alpha"
+display_name = "Wolf Pack Alpha"
+description = "Alpha wolf. HP 10, ATK 10. Massive damage — deal with it fast."
+max_hp = 10
+attack = 10
+speed = 250.0
+speedwalk = 120.0
+knockback_force = 35.0
+attack_cooldown = 0.5
+attack_range = 30.0
+ability_id = 0
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.4, 0.35, 0.35, 1)
+weapon_anchor_offset = Vector2(0, 0)

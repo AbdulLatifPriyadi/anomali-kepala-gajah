@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://titan bruiser009"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"titan_bruiser"
+display_name = "Titan Bruiser"
+description = "Mountain of flesh. HP 40, ATK 3. Extremely tanky — burst it down or die."
+max_hp = 40
+attack = 3
+speed = 55.0
+speedwalk = 30.0
+knockback_force = 60.0
+attack_cooldown = 1.2
+attack_range = 30.0
+ability_id = 0
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.4, 0.4, 0.5, 1)
+weapon_anchor_offset = Vector2(0, 0)

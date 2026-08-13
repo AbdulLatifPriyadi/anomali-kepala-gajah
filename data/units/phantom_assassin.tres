@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://phantom_assassin008"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"phantom_assassin"
+display_name = "Phantom Assassin"
+description = "Ghost-blade warrior. HP 6, ATK 6. FAST and deadly — kills wounded units."
+max_hp = 6
+attack = 6
+speed = 260.0
+speedwalk = 130.0
+knockback_force = 15.0
+attack_cooldown = 0.5
+attack_range = 30.0
+ability_id = 3
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.15, 0.1, 0.25, 1)
+weapon_anchor_offset = Vector2(0, 0)

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://armored_brute002"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"armored_brute"
+display_name = "Armored Brute"
+description = "Towering brute. HP 25, ATK 2. Slow but nearly unkillable."
+max_hp = 25
+attack = 2
+speed = 70.0
+speedwalk = 40.0
+knockback_force = 50.0
+attack_cooldown = 1.0
+attack_range = 28.0
+ability_id = 0
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.5, 0.5, 0.6, 1)
+weapon_anchor_offset = Vector2(0, 0)

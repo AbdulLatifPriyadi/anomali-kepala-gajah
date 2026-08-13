@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://anomali_tank010"]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1_ud"]
+
+[resource]
+script = ExtResource("1_ud")
+id = &"anomali_tank"
+display_name = "Anomali Tank"
+description = "Anomali construct. HP 18, ATK 4. Bred to absorb punishment and retaliate."
+max_hp = 18
+attack = 4
+speed = 110.0
+speedwalk = 55.0
+knockback_force = 30.0
+attack_cooldown = 0.65
+attack_range = 30.0
+ability_id = 0
+starting_weapon = null
+tags = []
+faction = 1
+tint = Color(0.55, 0.5, 0.65, 1)
+weapon_anchor_offset = Vector2(0, 0)

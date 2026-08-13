@@ -189,6 +189,96 @@ func _show_challenge() -> void:
 ## Builds two pre-picked popup options for the given wave number.
 ## Each option is decided RANDOMLY at build time (before popup shows),
 ## so the description says EXACTLY what will spawn — no "OR" possibilities.
+## Enemy pools organized by difficulty tier. Mixed into waves 4+.
+const POOL_TIER1 := [
+	"res://data/units/berserker_civilian.tres",
+	"res://data/units/armored_brute.tres",
+]
+const POOL_TIER2 := [
+	"res://data/units/healer_civilian.tres",
+	"res://data/units/speed_demon.tres",
+]
+const POOL_TIER3 := [
+	"res://data/units/knife_gang_leader.tres",
+	"res://data/units/wolf_pack_alpha.tres",
+	"res://data/units/human_with_knife_drop.tres",
+]
+const POOL_TIER4 := [
+	"res://data/units/vampire_lord.tres",
+	"res://data/units/phantom_assassin.tres",
+]
+const POOL_BOSS := [
+	"res://data/units/titan_bruiser.tres",
+	"res://data/units/sword_warlord.tres",
+	"res://data/units/anomali_tank.tres",
+]
+## Every 5 waves the scaling multiplier increases by 0.1.
+const WAVE_SCALE_STEP: float = 0.1
+## Boss waves (every 5th wave starting at wave 10).
+func _is_boss_wave(w: int) -> bool:
+	return w >= 10 and (w % 5) == 0
+
+func _build_progressive_wave(wave_num: int, difficulty: String) -> Array:
+	var is_boss: bool = _is_boss_wave(wave_num)
+	var is_hard: bool = difficulty == "hard"
+	var scale_factor: float = 1.0 + float(wave_num - 1) * WAVE_SCALE_STEP
+
+	var enemy_count: int = 0
+	if wave_num <= 5:
+		enemy_count = 3 if is_hard else 2
+	elif wave_num <= 8:
+		enemy_count = 4 if is_hard else 3
+	elif wave_num <= 12:
+		enemy_count = 5 if is_hard else 4
+	else:
+		enemy_count = 6 if is_hard else 5
+
+	var pool: Array = []
+	if is_boss:
+		# Boss wave: 1 boss + 2-3 escorts
+		var boss_idx: int = randi() % POOL_BOSS.size()
+		pool.append(POOL_BOSS[boss_idx])
+		var escorts: int = 2 if is_hard else 2
+		for _i in range(escorts):
+			var tier: int = randi() % POOL_TIER3.size()
+			pool.append(POOL_TIER3[tier])
+	else:
+		# Build pool from available tiers
+		pool = _build_wave_pool(wave_num, is_hard)
+		# Shuffle and trim to desired count
+		var rng = RandomNumberGenerator.new()
+		rng.seed = hash(wave_num * 1000 + (1 if difficulty == "hard" else 0))
+		pool.shuffle()
+		if pool.size() > enemy_count:
+			pool.resize(enemy_count)
+		while pool.size() < enemy_count:
+			var tier: int = mini(randi() % POOL_TIER4.size(), POOL_TIER4.size() - 1)
+			pool.append(POOL_TIER4[tier])
+
+	return pool
+
+func _build_wave_pool(w: int, hard: bool) -> Array:
+	var pool: Array = []
+	# Always include some known quantities from earlier waves
+	if hard:
+		pool.append("res://data/units/human_with_knife_drop.tres")
+	# Add tiers based on wave number
+	var max_tier: int = mini(4, ((w - 4) / 2) as int + 1)
+	var available_pools: Array = [
+		POOL_TIER1,
+		POOL_TIER2,
+		POOL_TIER3,
+		POOL_TIER4,
+	]
+	for tier_idx in range(max_tier + 1):
+		if tier_idx < available_pools.size():
+			var tier_pool: Array = available_pools[tier_idx]
+			var picks: int = (2 if hard else 1) if tier_idx <= 1 else (1 if hard else 1)
+			for _i in range(picks):
+				var idx: int = randi() % tier_pool.size()
+				pool.append(tier_pool[idx])
+	return pool
+
 func _build_wave_options_for(wave_num: int, out_opts: Array[WaveOptionData]) -> void:
 	out_opts.clear()
 
@@ -228,23 +318,43 @@ func _build_wave_options_for(wave_num: int, out_opts: Array[WaveOptionData]) -> 
 			easy_opts = [wave_3_easy_a, wave_3_easy_b]
 			hard_opts = [wave_3_hard_a, wave_3_hard_b]
 		_:
-			pass
+			# Waves 4+: procedurally generated with escalating difficulty
+			var easy_a: Array = _build_progressive_wave(wave_num, "easy")
+			var hard_a: Array = _build_progressive_wave(wave_num, "hard")
+			easy_opts = [easy_a]
+			hard_opts = [hard_a]
 
-	# Easy option A or B (pre-picked).
-	if not easy_opts.is_empty():
+	# Easy option
+	if easy_opts.size() > 0:
 		var easy_paths: Array = easy_opts[randi() % easy_opts.size()]
 		var easy_opt: WaveOptionData = WaveOptionData.new()
-		_apply_db_to_option(wave_num, "easy", easy_opt)
+		easy_opt.label = "Wave %d" % wave_num
 		easy_opt.description = "Spawn: %s" % _describe_paths(easy_paths)
+		if _is_boss_wave(wave_num):
+			easy_opt.label = "BOSS — Wave %d" % wave_num
+			easy_opt.tint_color = Color(0.7, 0.1, 0.1, 1.0)
+			easy_opt.description = "A terrifying boss appears! %s" % _describe_paths(easy_paths)
+		else:
+			easy_opt.tint_color = Color(0.3 + float(wave_num) * 0.04, 0.7 - float(wave_num) * 0.03, 0.3, 1.0)
+			easy_opt.description = "Wave %d escalating. Spawn: %s" % [wave_num, _describe_paths(easy_paths)]
+		easy_opt.title_scale = 1.1
+		easy_opt.desc_scale = 0.95
 		easy_opt.enemy_paths = easy_paths
 		out_opts.append(easy_opt)
 
-	# Hard option A or B (pre-picked).
-	if not hard_opts.is_empty():
+	# Hard option
+	if hard_opts.size() > 0:
 		var hard_paths: Array = hard_opts[randi() % hard_opts.size()]
 		var hard_opt: WaveOptionData = WaveOptionData.new()
-		_apply_db_to_option(wave_num, "hard", hard_opt)
-		hard_opt.description = "Spawn: %s" % _describe_paths(hard_paths)
+		hard_opt.label = "Wave %d Hard" % wave_num
+		if _is_boss_wave(wave_num):
+			hard_opt.label = "BOSS — Wave %d Hard" % wave_num
+			hard_opt.tint_color = Color(0.85, 0.05, 0.05, 1.0)
+		else:
+			hard_opt.tint_color = Color(0.8, 0.2 + float(wave_num) * 0.03, 0.2, 1.0)
+		hard_opt.description = "Brutal wave %d! Spawn: %s" % [wave_num, _describe_paths(hard_paths)]
+		hard_opt.title_scale = 1.15
+		hard_opt.desc_scale = 0.9
 		hard_opt.enemy_paths = hard_paths
 		out_opts.append(hard_opt)
 
