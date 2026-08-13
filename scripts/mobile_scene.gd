@@ -310,7 +310,9 @@ func _show_shop() -> void:
 		return
 	# Build shop entries based on available gold.
 	var entries: Array = []
-	var gold: int = int(gs.get("gold", 0))
+	var gold: int = 0
+	if gs != null and gs.get("gold") != null:
+		gold = int(gs.get("gold"))
 
 	# Heal option: spend 5 gold to heal all units 50% HP.
 	if gold >= 5:
@@ -399,7 +401,9 @@ func _show_prize() -> void:
 	if popup_manager == null:
 		return
 	var gs: Node = _gs()
-	var rerolls: int = int(gs.get("rerolls_remaining", 0)) if gs else 0
+	var rerolls: int = 0
+	if gs != null and gs.get("rerolls_remaining") != null:
+		rerolls = int(gs.get("rerolls_remaining"))
 	popup_manager.show_prize_with_reroll(_prize_pool, _on_prize_picked, rerolls, _on_prize_reroll)
 
 func _on_prize_picked(unit_data: Resource) -> void:
